@@ -1,0 +1,28 @@
+# Configuration for CVRP-ACO Project
+# Default parameters for ACO solver
+aco:
+  n_ants: 30
+  n_iterations: 150
+  alpha: 1.0
+  beta: 1.0
+  evaporation_rate: 0.5
+  Q: 1.0
+
+# Vehicle constraints
+vehicle:
+  max_pall: 22
+  max_lbs: 38000
+
+# Data settings
+data:
+  db_path: "data/cvrp.db"  # SQLite DB for local use
+  origin: "way/1180028681"  # Example origin
+
+# API keys (set via environment or input)
+api:
+  ors_key: ""  # Leave empty; prompt user or use env
+
+# Sample data paths
+samples:
+  geojson: "data/sample.geojson"
+  points_csv: "data/sample_points.csv"

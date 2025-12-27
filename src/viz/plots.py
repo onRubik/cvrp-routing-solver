@@ -19,7 +19,7 @@ with open('config.yaml', 'r') as f:
 
 def plot_solution_table(dvrp_id: str = None, db_path: str = None) -> go.Figure:
     """
-    Generate a Plotly table of DVRP solution data with tractor load summaries.
+    Generate a Plotly table of DVRP solution data.
 
     Args:
         dvrp_id: Specific DVRP ID to plot, or None for all
@@ -34,37 +34,13 @@ def plot_solution_table(dvrp_id: str = None, db_path: str = None) -> go.Figure:
     con = sqlite3.connect(db_path)
 
     if dvrp_id:
-        query = 'SELECT * FROM dvrp_set WHERE dvrp_id = ? ORDER BY cluster_id, sequence'
+        query = 'SELECT * FROM dvrp_set WHERE dvrp_id = ?'
         params = [dvrp_id]
     else:
-        query = 'SELECT * FROM dvrp_set ORDER BY dvrp_id, cluster_id, sequence'
+        query = 'SELECT * FROM dvrp_set'
         params = []
 
     df = pd.read_sql_query(query, con, params=params)
-
-    # Calculate tractor load summaries
-    if not df.empty:
-        # Join with geo_points to get pallet and weight data
-        summary_query = f'''
-            SELECT
-                ds.dvrp_id,
-                ds.cluster_id,
-                ds.cluster_name,
-                COUNT(ds.point) as stops,
-                SUM(gp.pall_avg) as total_pallets,
-                SUM(gp.lbs_avg) as total_weight_lbs
-            FROM dvrp_set ds
-            JOIN geo_points gp ON ds.point = gp.id_p
-            {'WHERE ds.dvrp_id = ?' if dvrp_id else ''}
-            GROUP BY ds.dvrp_id, ds.cluster_id, ds.cluster_name
-            ORDER BY ds.cluster_id
-        '''
-        summary_params = [dvrp_id] if dvrp_id else []
-        summary_df = pd.read_sql_query(summary_query, con, params=summary_params)
-
-        # Add summary columns to main dataframe
-        df = df.merge(summary_df, on=['dvrp_id', 'cluster_id', 'cluster_name'], how='left')
-
     con.close()
 
     fig = go.Figure(data=[go.Table(
@@ -80,12 +56,8 @@ def plot_solution_table(dvrp_id: str = None, db_path: str = None) -> go.Figure:
         )
     )])
 
-    title = f"DVRP Solution{' - ' + dvrp_id if dvrp_id else ''}"
-    if not df.empty and 'total_pallets' in df.columns:
-        title += " (with Tractor Load Summary)"
-
     fig.update_layout(
-        title=title,
+        title=f"DVRP Solution{' - ' + dvrp_id if dvrp_id else ''}",
         margin=dict(l=10, r=18, t=50, b=10)
     )
 

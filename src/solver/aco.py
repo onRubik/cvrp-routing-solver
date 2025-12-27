@@ -222,6 +222,26 @@ class ACOSolver:
         print(f'Best path points: {self.best_path_id_p}')
         print(f'Best length: {best_length}')
 
+        # Print tractor load summaries
+        print('\\nTractor Load Summary:')
+        tractor_loads = {}
+        current_tractor = 0
+
+        for item in self.best_path_id_p:
+            if item == self.origin:
+                current_tractor += 1
+                tractor_loads[current_tractor] = {'pallets': 0, 'lbs': 0}
+            elif current_tractor > 0:
+                point_data = points_df[points_df['id_p'] == item]
+                if not point_data.empty:
+                    pall = point_data.iloc[0]['pall_avg']
+                    lbs = point_data.iloc[0]['lbs_avg']
+                    tractor_loads[current_tractor]['pallets'] += pall
+                    tractor_loads[current_tractor]['lbs'] += lbs
+
+        for tractor_id, loads in tractor_loads.items():
+            print(f'Tractor {tractor_id} = {loads["pallets"]} pallets and {loads["lbs"]} lbs')
+
         self._save_solution()
         self.con.close()
         return 'CVRP solved and saved'

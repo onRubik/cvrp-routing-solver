@@ -160,7 +160,7 @@ class ACOSolver:
                 load = points_df.iloc[start_idx, 1]
                 weight = points_df.iloc[start_idx, 2]
 
-                while not all(visited):
+                while sum(visited) < n_points - 1:  # All except origin must be visited
                     unvisited = np.where(~np.array(visited))[0]
                     probs = np.zeros(len(unvisited))
 

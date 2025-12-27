@@ -12,6 +12,7 @@ from tqdm import trange
 import csv
 from typing import List, Tuple
 import yaml
+import time
 
 # Load config
 with open('config.yaml', 'r') as f:
@@ -142,10 +143,12 @@ class ACOSolver:
         origin_idx = points_df[points_df['id_p'] == self.origin].index[0]
 
         for iteration in trange(self.n_iterations, desc='ACO Iterations'):
+            iter_start = time.time()
             paths = []
             lengths = []
 
             for ant in range(self.n_ants):
+                ant_start = time.time()
                 visited = [False] * n_points
 
                 # Start from random point (not origin)
@@ -209,6 +212,10 @@ class ACOSolver:
                     best_path = path
                     best_length = length
 
+                ant_end = time.time()
+                if ant < 3:  # Only print first 3 ants to avoid spam
+                    print(f"Ant {ant} took {ant_end - ant_start:.2f} seconds")
+
             # Update pheromones
             pheromone *= self.evaporation_rate
             for path, length in zip(paths, lengths):
@@ -216,6 +223,9 @@ class ACOSolver:
                 for i in range(len(path) - 1):
                     pheromone[path[i], path[i+1]] += deposit
                 pheromone[path[-1], path[0]] += deposit
+
+            iter_end = time.time()
+            print(f"Iteration {iteration} took {iter_end - iter_start:.2f} seconds")
 
         print(f'Best path indices: {best_path}')
         self.best_path_id_p = [points_df.iloc[i, 0] for i in best_path]

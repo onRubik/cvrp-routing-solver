@@ -143,12 +143,10 @@ class ACOSolver:
         origin_idx = points_df[points_df['id_p'] == self.origin].index[0]
 
         for iteration in trange(self.n_iterations, desc='ACO Iterations'):
-            iter_start = time.time()
             paths = []
             lengths = []
 
             for ant in range(self.n_ants):
-                ant_start = time.time()
                 visited = [False] * n_points
 
                 # Start from random point (not origin)

@@ -7,4 +7,3 @@ jupyter>=1.0.0
 ipywidgets>=7.6.0
 pyyaml>=5.4.0
 openrouteservice>=2.3.0
-sqlite3

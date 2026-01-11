@@ -99,12 +99,32 @@ def plot_routes_map(dvrp_id, ors_api_key=None, db_path='data/cvrp_demo.db'):
 
     Args:
         dvrp_id: Solution identifier
-        ors_api_key: Open Route Service API key (not used in demo)
+        ors_api_key: Open Route Service API key (optional, will try Colab secrets)
         db_path: Path to database file
 
     Returns:
         plotly figure object
     """
+    # Try to get ORS API key from Colab secrets if not provided
+    if ors_api_key is None:
+        try:
+            from google.colab import userdata
+            ors_api_key = userdata.get('ORS_API_KEY')
+            print("✅ Found ORS_API_KEY in Colab secrets - will use realistic road routes")
+        except:
+            print("\n" + "="*80)
+            print("⚠️  WARNING: No ORS_API_KEY found in Colab secrets!")
+            print("="*80)
+            print("📍 Routes will be shown as STRAIGHT LINES between stops.")
+            print("🛣️  For realistic road-following routes, add your OpenRouteService API key:")
+            print("   1. Get free API key: https://openrouteservice.org/dev/#/signup")
+            print("   2. In Colab: Click 🔑 (key icon) in left sidebar")
+            print("   3. Add secret: Name='ORS_API_KEY', Value='your-api-key'")
+            print("   4. Enable 'Notebook access' toggle")
+            print("   5. Re-run this cell")
+            print("="*80 + "\n")
+            ors_api_key = None
+    
     con = sqlite3.connect(db_path)
 
     # Get route data
@@ -167,26 +187,59 @@ def plot_routes_map(dvrp_id, ors_api_key=None, db_path='data/cvrp_demo.db'):
     # Colors for different tractors
     colors = ['red', 'blue', 'green', 'orange', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
 
+    # Initialize ORS client if API key is available
+    ors_client = None
+    if ors_api_key:
+        try:
+            import openrouteservice
+            ors_client = openrouteservice.Client(key=ors_api_key)
+        except Exception as e:
+            print(f"⚠️  Failed to initialize ORS client: {e}")
+            print("Falling back to straight-line routes")
+            ors_client = None
+
     # Plot routes for each tractor
     for tractor_id, tractor_data in routes_df.groupby('cluster_id'):
         color = colors[tractor_id % len(colors)]
         tractor_name = tractor_data['cluster_name'].iloc[0]
 
-        # Get route coordinates (start from origin, visit stores, return to origin)
-        route_coords = []
-
-        # Start at distribution center
-        route_coords.append((dc_lat, dc_lon))
-
-        # Visit each store
+        # Build coordinates list for this route
+        coords_list = [[float(dc_lon), float(dc_lat)]]  # Start at DC (lon, lat for ORS)
+        
         for _, stop in tractor_data.iterrows():
-            route_coords.append((stop['lat'], stop['lon']))
+            coords_list.append([float(stop['lon']), float(stop['lat'])])
+        
+        coords_list.append([float(dc_lon), float(dc_lat)])  # Return to DC
+        
+        print(f"🚛 {tractor_name} route coordinates: {coords_list}")
 
-        # Return to distribution center
-        route_coords.append((dc_lat, dc_lon))
+        # Get route line coordinates
+        if ors_client:
+            # Use ORS to get realistic road routes
+            try:
+                route = ors_client.directions(
+                    coordinates=coords_list,
+                    profile='driving-hgv',
+                    format='geojson'
+                )
+                # Extract coordinates from GeoJSON
+                line_coords = route['features'][0]['geometry']['coordinates']
+                # Convert to (lat, lon) for Plotly
+                lats = [coord[1] for coord in line_coords]
+                lons = [coord[0] for coord in line_coords]
+                print(f"✅ {tractor_name}: Retrieved {len(line_coords)} road points from ORS")
+            except Exception as e:
+                print(f"⚠️  ORS routing failed for {tractor_name}: {e}")
+                print("Using straight-line route for this tractor")
+                # Fall back to straight lines
+                lats = [coord[1] for coord in coords_list]
+                lons = [coord[0] for coord in coords_list]
+        else:
+            # Use straight-line routes
+            lats = [coord[1] for coord in coords_list]
+            lons = [coord[0] for coord in coords_list]
 
         # Plot route line
-        lats, lons = zip(*route_coords)
         fig.add_trace(go.Scattermapbox(
             lat=lats,
             lon=lons,
@@ -196,12 +249,12 @@ def plot_routes_map(dvrp_id, ors_api_key=None, db_path='data/cvrp_demo.db'):
             hoverinfo='name'
         ))
 
-        # Plot store markers
-        for i, (lat, lon) in enumerate(route_coords[1:-1]):  # Skip DC at start and end
-            stop_data = tractor_data.iloc[i]
+        # Plot store markers (skip first and last which are DC)
+        for i, stop in enumerate(tractor_data.iterrows()):
+            _, stop_data = stop
             fig.add_trace(go.Scattermapbox(
-                lat=[lat],
-                lon=[lon],
+                lat=[stop_data['lat']],
+                lon=[stop_data['lon']],
                 mode='markers+text',
                 marker=dict(size=10, color=color),
                 text=[f"{stop_data['store_name']}<br>{stop_data['pallets']} pallets"],

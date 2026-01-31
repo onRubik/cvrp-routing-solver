@@ -212,6 +212,10 @@ def plot_routes_map(dvrp_id, ors_api_key=None, db_path='data/cvrp_demo.db'):
         coords_list.append([float(dc_lon), float(dc_lat)])  # Return to DC
         
         print(f"🚛 {tractor_name} route coordinates: {coords_list}")
+        
+        # Print store sequence for this tractor
+        store_names = [stop['store_name'] for _, stop in tractor_data.iterrows()]
+        print(f"🏪 {tractor_name} stops: {', '.join(store_names)}")
 
         # Get route line coordinates
         if ors_client:
@@ -249,30 +253,39 @@ def plot_routes_map(dvrp_id, ors_api_key=None, db_path='data/cvrp_demo.db'):
             hoverinfo='name'
         ))
 
-        # Plot store markers (skip first and last which are DC)
+        # Plot store markers with sequence numbers
         for i, stop in enumerate(tractor_data.iterrows()):
             _, stop_data = stop
+            sequence_num = i + 1  # Stop sequence in this route
             fig.add_trace(go.Scattermapbox(
                 lat=[stop_data['lat']],
                 lon=[stop_data['lon']],
                 mode='markers+text',
-                marker=dict(size=10, color=color),
-                text=[f"{stop_data['store_name']}<br>{stop_data['pallets']} pallets"],
+                marker=dict(size=12, color=color),
+                text=[f"Stop {sequence_num}:<br>{stop_data['store_name']}<br>{stop_data['pallets']} pallets"],
                 textposition="top center",
-                name=f'{tractor_name} Stop {i+1}',
-                hoverinfo='text',
+                name=f'{tractor_name} Stop {sequence_num}',
+                hovertemplate=f"<b>Stop {sequence_num}</b><br>" +
+                             f"{stop_data['store_name']}<br>" +
+                             f"Pallets: {stop_data['pallets']}<br>" +
+                             f"Weight: {stop_data['weight_lbs']:,.0f} lbs<br>" +
+                             f"<extra></extra>",
                 showlegend=False
             ))
 
-    # Plot distribution center
+    # Plot distribution center with better visibility
     fig.add_trace(go.Scattermapbox(
         lat=[dc_lat],
         lon=[dc_lon],
         mode='markers+text',
-        marker=dict(size=15, color='black', symbol='star'),
-        text=['Distribution Center'],
+        marker=dict(size=20, color='black', symbol='star'),
+        text=['DC'],
+        textposition="bottom center",
         name='Distribution Center',
-        hoverinfo='text'
+        hovertemplate="<b>Distribution Center</b><br>" +
+                     "Starting and ending point<br>" +
+                     f"Coordinates: {dc_lat:.4f}, {dc_lon:.4f}<br>" +
+                     "<extra></extra>"
     ))
 
     # Configure map

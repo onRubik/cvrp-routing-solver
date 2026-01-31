@@ -39,7 +39,7 @@ jupyter notebook notebooks/cvrp_aco_demo.ipynb
 ```
 cvrp-routing-solver/
 ├── data/                    # Pre-computed geographic data
-│   ├── input_small.csv      # 20 store locations to optimize
+│   ├── input_small.csv      # 8 locations to optimize (7 stores + 1 distribution center)
 │   ├── geo_points.csv       # Geographic coordinates + delivery requirements
 │   └── geo_permutations.csv # Pre-calculated distance matrix
 ├── notebooks/               # Interactive Colab demo

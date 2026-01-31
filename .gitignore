@@ -29,9 +29,10 @@ ENV/
 .venv/
 .env/
 
-# IDE
+# IDE and Kiro Configuration
 .vscode/
 .idea/
+.kiro/
 *.swp
 *.swo
 *~
@@ -48,6 +49,12 @@ ENV/
 !data/input_small.csv
 !data/geo_points.csv
 !data/geo_permutations.csv
+
+# API Keys and Environment
+.env
+*.key
+config.json
+secrets.json
 
 # OS
 .DS_Store
@@ -66,3 +73,12 @@ logs/
 *.tmp
 *.temp
 .cache/
+
+# Development artifacts
+*.bak
+*.orig
+*.rej
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/

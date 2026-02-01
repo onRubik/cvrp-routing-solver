@@ -4,7 +4,7 @@ import pandas as pd
 import sqlite3
 
 # Version identifier for debugging module reloads
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 print(f"🔧 Loading plots.py version {__version__}")
 
 
@@ -283,7 +283,7 @@ def plot_routes_map(dvrp_id, ors_api_key=None, db_path='data/cvrp_demo.db'):
         lat=[dc_lat],
         lon=[dc_lon],
         mode='markers+text',
-        marker=dict(size=30, color='black', symbol='circle'),
+        marker=dict(size=17, color='black', symbol='star'),
         text=['DC'],
         textposition="top center",
         name='Distribution Center',

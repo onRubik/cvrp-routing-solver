@@ -3,6 +3,10 @@ import plotly.figure_factory as ff
 import pandas as pd
 import sqlite3
 
+# Version identifier for debugging module reloads
+__version__ = "2.0.0"
+print(f"🔧 Loading plots.py version {__version__}")
+
 
 def plot_solution_table(dvrp_id, db_path='data/cvrp_demo.db'):
     """
@@ -254,38 +258,42 @@ def plot_routes_map(dvrp_id, ors_api_key=None, db_path='data/cvrp_demo.db'):
         ))
 
         # Plot store markers with sequence numbers
+        print(f"🏪 {tractor_name} stops: {', '.join(store_names)}")
         for i, stop in enumerate(tractor_data.iterrows()):
             _, stop_data = stop
             sequence_num = i + 1  # Stop sequence in this route
+            print(f"   Adding marker for Stop {sequence_num}: {stop_data['store_name']} at [{stop_data['lon']}, {stop_data['lat']}]")
             fig.add_trace(go.Scattermapbox(
                 lat=[stop_data['lat']],
                 lon=[stop_data['lon']],
                 mode='markers+text',
                 marker=dict(size=12, color=color),
-                text=[f"Stop {sequence_num}:<br>{stop_data['store_name']}<br>{stop_data['pallets']} pallets"],
+                text=[f"Stop {sequence_num}"],
                 textposition="top center",
-                name=f'{tractor_name} Stop {sequence_num}',
+                name=f'{tractor_name} Stop {sequence_num}: {stop_data["store_name"]}',
                 hovertemplate=f"<b>Stop {sequence_num}</b><br>" +
                              f"{stop_data['store_name']}<br>" +
                              f"Pallets: {stop_data['pallets']}<br>" +
                              f"Weight: {stop_data['weight_lbs']:,.0f} lbs<br>" +
-                             f"<extra></extra>",
+                             "<extra></extra>",
                 showlegend=False
             ))
 
     # Plot distribution center with better visibility
+    print(f"🏭 Distribution Center coordinates: [{dc_lon}, {dc_lat}]")
     fig.add_trace(go.Scattermapbox(
         lat=[dc_lat],
         lon=[dc_lon],
         mode='markers+text',
-        marker=dict(size=20, color='black', symbol='star'),
+        marker=dict(size=25, color='red', symbol='star'),
         text=['DC'],
         textposition="bottom center",
         name='Distribution Center',
         hovertemplate="<b>Distribution Center</b><br>" +
                      "Starting and ending point<br>" +
                      f"Coordinates: {dc_lat:.4f}, {dc_lon:.4f}<br>" +
-                     "<extra></extra>"
+                     "<extra></extra>",
+        showlegend=True
     ))
 
     # Configure map

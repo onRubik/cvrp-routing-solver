@@ -4,7 +4,7 @@ import pandas as pd
 import sqlite3
 
 # Version identifier for debugging module reloads
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 print(f"🔧 Loading plots.py version {__version__}")
 
 
@@ -258,11 +258,9 @@ def plot_routes_map(dvrp_id, ors_api_key=None, db_path='data/cvrp_demo.db'):
         ))
 
         # Plot store markers with sequence numbers
-        print(f"🏪 {tractor_name} stops: {', '.join(store_names)}")
         for i, stop in enumerate(tractor_data.iterrows()):
             _, stop_data = stop
             sequence_num = i + 1  # Stop sequence in this route
-            print(f"   Adding marker for Stop {sequence_num}: {stop_data['store_name']} at [{stop_data['lon']}, {stop_data['lat']}]")
             fig.add_trace(go.Scattermapbox(
                 lat=[stop_data['lat']],
                 lon=[stop_data['lon']],
@@ -285,9 +283,9 @@ def plot_routes_map(dvrp_id, ors_api_key=None, db_path='data/cvrp_demo.db'):
         lat=[dc_lat],
         lon=[dc_lon],
         mode='markers+text',
-        marker=dict(size=25, color='red', symbol='star'),
+        marker=dict(size=30, color='black', symbol='circle'),
         text=['DC'],
-        textposition="bottom center",
+        textposition="top center",
         name='Distribution Center',
         hovertemplate="<b>Distribution Center</b><br>" +
                      "Starting and ending point<br>" +

@@ -283,7 +283,7 @@ def plot_routes_map(dvrp_id, ors_api_key=None, db_path='data/cvrp_demo.db'):
         lat=[dc_lat],
         lon=[dc_lon],
         mode='markers+text',
-        marker=dict(size=17, color='black', symbol='star'),
+        marker=dict(size=17, color='red', symbol='circle'),
         text=['DC'],
         textposition="top center",
         name='Distribution Center',

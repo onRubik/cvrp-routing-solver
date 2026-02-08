@@ -22,17 +22,10 @@ This repository contains the interactive demo for our comprehensive CVRP-ACO cou
 
 ### Google Colab (Recommended)
 1. Click the Colab badge above
-2. Follow the step-by-step notebook
-3. No installation required!
+2. Follow the step-by-step notebook (clock on "Run all")
+3. No local installation required!
 4. Experiment with different parameters
 
-### Local Installation
-```bash
-git clone https://github.com/onRubik/cvrp-routing-solver.git
-cd cvrp-routing-solver
-pip install -r requirements.txt
-jupyter notebook notebooks/cvrp_aco_demo.ipynb
-```
 
 ## 📁 Project Structure
 
@@ -52,7 +45,6 @@ cvrp-routing-solver/
 ## 🎯 Key Features
 
 - **Pre-built Dataset**: 20 Manhattan locations with realistic delivery requirements
-- **No API Keys Needed**: Uses pre-computed distances (no OpenRouteService calls)
 - **Interactive Visualizations**: Plotly maps and tables showing solutions
 - **Configurable Parameters**: Adjust vehicle constraints, ACO settings
 - **Educational Focus**: Clear explanations of algorithms and concepts
@@ -60,10 +52,8 @@ cvrp-routing-solver/
 ## 📊 Sample Problem
 
 **Given:**
-- 19 stores in Manhattan requiring deliveries
-- Distribution center at Times Square
+- A few locations in Manhattan
 - Tractor capacity: 22 pallets, 38,000 lbs
-- Store demands: 1-16 pallets, 1,400-22,400 lbs
 
 **Find:** Optimal routes that minimize total distance while respecting capacity constraints.
 
@@ -88,9 +78,7 @@ After completing this demo, you'll understand:
 
 For the full course including:
 - **Advanced ACO variants** and improvements
-- **Real-world implementation** techniques
 - **Integration with routing APIs**
-- **Performance optimization** strategies
 - **Multiple constraint types**
 - **Source code deep dives**
 

@@ -82,3 +82,7 @@ logs/
 htmlcov/
 .pytest_cache/
 .mypy_cache/
+
+# Gumroad Course Content
+pages/
+context_inputs/

@@ -82,7 +82,7 @@ For the full course including:
 - **Multiple constraint types**
 - **Source code deep dives**
 
-👉 **[Purchase the Complete Course](https://gumroad.com/your-course-link)**
+👉 **[Purchase the Complete Course](https://rubiklife.gumroad.com/l/vcxvrx)**
 
 ## 🤝 Contributing
 
